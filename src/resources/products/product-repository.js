@@ -1,4 +1,4 @@
-const genericRepositoryFactory = require('../../utils/generic-repo-factory');
+const genericRepositoryFactory = require('../../utils/generic-repository');
 const ProductModel = require('./product-model');
 
 const productRepository = genericRepositoryFactory

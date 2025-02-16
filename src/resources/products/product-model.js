@@ -32,13 +32,13 @@ const ProductModel = db.sequelize.define('Product', {
   },
   restaurantId: { type: DataTypes.UUID, allowNull: false },
   meatPortion: { type: DataTypes.INTEGER, allowNull: true },
+  accompanimentPortion: { type: DataTypes.INTEGER, allowNull: true },
   garnishPortion: { type: DataTypes.INTEGER, allowNull: true },
   saladIncluded: { type: DataTypes.BOOLEAN, defaultValue: true },
   dessertIncluded: { type: DataTypes.BOOLEAN, defaultValue: true },
   packagingCost: { type: DataTypes.DECIMAL(10, 2), allowNull: true },
-  weightPrice: { type: DataTypes.DECIMAL(10, 2), allowNull: true },
   enabled: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true },
-  type: { type: DataTypes.ENUM(...ProductType.values()), allowNull: false },
+  type: { type: DataTypes.ENUM(...Object.values(ProductType)), allowNull: false },
 });
 
 // @ts-ignore
@@ -48,10 +48,7 @@ ProductModel.setup = ({ Category, Restaurant }) => {
     as: 'category',
   });
 
-  Category.hasMany(ProductModel, {
-    foreignKey: 'categoryId',
-    as: 'products',
-  });
+  Category.hasMany(ProductModel, { foreignKey: 'categoryId', as: 'products' });
 
   ProductModel.belongsTo(Restaurant, {
     foreignKey: 'restaurantId',
@@ -60,22 +57,21 @@ ProductModel.setup = ({ Category, Restaurant }) => {
 
   ProductModel.beforeFind((options) => {
     options.include = [
-      {
-        association: 'category',
-        attributes: {
-          include: ['id', 'name'],
-        }
-      },
+      { association: 'category', attributes: { include: ['id', 'name'] } },
       {
         association: 'restaurant',
-        attributes: {
-          include: ['id', 'tradeName'],
-        }
+        attributes: { include: ['id', 'tradeName'] },
       },
     ];
 
     options.attributes = {
-      exclude: ['categoryId', 'restaurantId', 'deletedAt', 'updatedAt', 'createdAt'],
+      exclude: [
+        'categoryId',
+        'restaurantId',
+        'deletedAt',
+        'updatedAt',
+        'createdAt',
+      ],
     };
   });
 };

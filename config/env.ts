@@ -1,10 +1,10 @@
-const dotenv = require('dotenv');
-const path = require('path');
+import dotenv from 'dotenv';
+import path from 'path';
 
 const envFilePath = path.resolve(__dirname, `../.env`);
 dotenv.config({ path: envFilePath });
 
-module.exports = {
+export const env = {
   env: process.env.NODE_ENV || 'development',
   api: {
     port: parseInt(process.env.API_PORT || '3000', 10),
@@ -26,7 +26,7 @@ module.exports = {
   },
   jwt: {
     secret: process.env.JWT_SECRET || 'secret',
-    expiresIn: process.env.JWT_EXPIRES_IN || '1h',
+    secondsToExpiry: parseInt(process.env.JWT_EXPIRY || '3600', 10),
     audience: process.env.JWT_AUDIENCE || 'localhost',
     issuer: process.env.JWT_ISSUER || 'localhost',
   },

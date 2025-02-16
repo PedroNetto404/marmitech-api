@@ -1,4 +1,4 @@
-const genericRepositoryFactory = require('../../utils/generic-repo-factory');
+const genericRepositoryFactory = require('../../utils/generic-repository');
 const CustomerModel = require('./customer-model');
 const AddressModel = require('../shared/addresses/address-model');
 const db = require('../../../config/database');
@@ -21,7 +21,7 @@ const customerRepository = {
       await CustomerModel.create(
         {
           ...payload,
-          addressId: address.id
+          addressId: address.id,
         },
         {
           transaction: t,
@@ -32,8 +32,8 @@ const customerRepository = {
       await t.commit();
 
       payload.address = {
-        ...address,      
-      }
+        ...address,
+      };
     } catch (error) {
       await t.rollback();
       throw error;

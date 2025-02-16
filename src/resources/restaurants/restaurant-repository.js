@@ -1,4 +1,4 @@
-const genericRepositoryFactory = require('../../utils/generic-repo-factory');
+const genericRepositoryFactory = require('../../utils/generic-repository');
 const RestaurantModel = require('./restaurant-model');
 const addressRepository = require('../shared/addresses/address-repository');
 const db = require('../../../config/database');
@@ -6,10 +6,10 @@ const db = require('../../../config/database');
 const restaurantRepository = {
   ...genericRepositoryFactory.withModel(RestaurantModel).build(),
   /**
-   * 
-   * @param {any} restaurant 
+   *
+   * @param {any} restaurant
    */
-  async create(restaurant) { 
+  async create(restaurant) {
     const t = await db.sequelize.transaction();
 
     try {
@@ -20,7 +20,7 @@ const restaurantRepository = {
 
       await RestaurantModel.create(
         { ...restaurant, addressId: restaurant.address.id },
-        { transaction: t }
+        { transaction: t },
       );
 
       await t.commit();
@@ -30,11 +30,11 @@ const restaurantRepository = {
     }
   },
   /**
-   * 
-   * @param {string} id 
-   * @param {any} restaurant 
+   *
+   * @param {string} id
+   * @param {any} restaurant
    */
-  async update(id, restaurant) { 
+  async update(id, restaurant) {
     const t = await db.sequelize.transaction();
 
     try {
@@ -46,7 +46,7 @@ const restaurantRepository = {
 
       await RestaurantModel.update(
         { ...restaurant, addressId: restaurant.address.id },
-        { where: { id }, transaction: t }
+        { where: { id }, transaction: t },
       );
 
       await t.commit();
@@ -54,6 +54,6 @@ const restaurantRepository = {
       await t.rollback();
       throw error;
     }
-  }
+  },
 };
 module.exports = restaurantRepository;

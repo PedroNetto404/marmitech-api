@@ -1,9 +1,10 @@
-const { DataTypes } = require('sequelize');
-const db = require('../../../config/database');
-const Role = require('./enums/role');
+import { DataTypes, Model } from 'sequelize';
+import { db } from '../../../config/database';
+import Role from './enums/role';
+import { User } from './user-schema';
 
-const UserModel = db.sequelize.define(
-  'User',
+export class UserModel extends Model<User> {}
+UserModel.init(
   {
     id: {
       type: DataTypes.UUID,
@@ -30,7 +31,7 @@ const UserModel = db.sequelize.define(
         isNumeric: true,
       },
     },
-    password: {
+    hashedPassword: {
       type: DataTypes.STRING(200),
       allowNull: false,
     },
@@ -38,11 +39,12 @@ const UserModel = db.sequelize.define(
       type: DataTypes.ENUM(...Object.values(Role)),
       allowNull: false,
     },
+    profilePictureUrl: {
+      type: DataTypes.STRING(200),
+    },
   },
   {
-    paranoid: true,
-    timestamps: true,
-  }
+    sequelize: db.sequelize,
+    modelName: 'User',
+  },
 );
-
-module.exports = UserModel;

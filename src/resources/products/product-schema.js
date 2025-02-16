@@ -16,19 +16,19 @@ module.exports.FindAllSchema = schemaBuilder
     {
       name: 'name',
       operators: ['eq', 'iLike'],
-      builder: ({ name, operator, value }) => {
+      builder: ({ operator, value }) => {
         if (operator === 'iLike') {
-          return { [name]: { [Op.iLike]: `%${value}%` } };
+          return { name: { [Op.iLike]: `%${value}%` } };
         }
-        return { [name]: { [Op[operator]]: value } };
+        return { name: { [Op[operator]]: value } };
       },
     },
     {
       name: 'type',
       operators: ['eq'],
-      builder: ({ name, operator, value }) => {
+      builder: ({ operator, value }) => {
         return {
-          [name]: { [operator]: value },
+          type: { [operator]: value },
         };
       },
     },
@@ -62,6 +62,7 @@ module.exports.CreateSchema = z.object({
       stock: z.number().int().positive().optional(),
       packageStock: z.number().int().positive().optional(),
       meatPortion: z.number().int().positive().optional(),
+      accompanimentPortion: z.number().int().positive().optional(),
       garnishPortion: z.number().int().positive().optional(),
       saladIncluded: z.boolean().optional(),
       dessertIncluded: z.boolean().optional(),

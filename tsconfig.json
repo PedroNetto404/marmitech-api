@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",                          // Define a versão do ECMAScript alvo
+    "module": "ES2020",                          // Utiliza a sintaxe de módulos ECMAScript (import/export)
+    "lib": ["ES2020"],                           // Bibliotecas padrão do ES2020
+    "moduleResolution": "node",                  // Resolução de módulos no estilo Node.js
+    "esModuleInterop": true,                     // Suporte para importação de módulos CommonJS
+    "allowSyntheticDefaultImports": true,        // Permite importações com sintaxe de default mesmo em módulos sem default export
+    "strict": true,                              // Ativa todas as checagens estritas de tipo
+    "skipLibCheck": true,                        // Ignora checagens de tipos em arquivos de declaração
+    "forceConsistentCasingInFileNames": true,    // Garante consistência nas referências de arquivos
+    "types": ["node"],                           // Inclui os tipos do Node.js
+    "outDir": "./dist",                          // Diretório de saída dos arquivos compilados
+    "sourceMap": true                            // Gera arquivos .map para depuração
+  },
+  "include": ["src/**/*"],                       // Inclui todos os arquivos dentro da pasta src
+  "exclude": ["node_modules", "dist"]            // Exclui as pastas node_modules e dist
+}

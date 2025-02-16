@@ -1,18 +1,12 @@
-const sequelize = require('sequelize');
-const env = require('./env');
+import sequelize, { Model, ModelStatic } from 'sequelize';
+import { env } from './env';
 const { database } = env;
 
-/**
- * @type {{
- *  sequelize: import('sequelize').Sequelize,
- *  initialize: () => Promise<void>,
- *  models: {
- *    [key: string]: import('sequelize').ModelStatic<import('sequelize').Model>
- *   }
- * }
- * }
- */
-const db = {
+export const db: {
+  sequelize: sequelize.Sequelize;
+  models: Record<string, ModelStatic<Model>>;
+  initialize: () => Promise<void>;
+} = {
   sequelize: new sequelize.Sequelize(
     database.database,
     database.username,
@@ -33,7 +27,10 @@ const db = {
       if (database.sync.enabled) {
         const models = require('./models');
 
-        await db.sequelize.sync({ force: database.sync.force, alter: database.sync.alter });
+        await db.sequelize.sync({
+          force: database.sync.force,
+          alter: database.sync.alter,
+        });
         console.log('Database synchronized');
 
         for (const model of models) {
@@ -51,7 +48,5 @@ const db = {
     } catch (error) {
       console.error('Unable to connect to the database:', error);
     }
-  }
+  },
 };
-
-module.exports = db;

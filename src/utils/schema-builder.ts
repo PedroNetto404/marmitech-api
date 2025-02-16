@@ -1,13 +1,74 @@
-const { z } = require('zod');
+import { Op, WhereOptions } from 'sequelize';
+import { z } from 'zod';
 
-const schemaBuilder = {
-  /**
-   * Método para construção de esquemas de validação para rotas de listagem.
-   * @returns {typeof builder} Objeto com os métodos para construção de esquemas de validação.
-   */
-  query: () => {
-    const sorting = [];
-    const filtering = [];
+export type Filter<T> = {
+  field: keyof T;
+  operators: (keyof typeof Op)[];
+  builder: (params: {
+    operator: keyof typeof Op;
+    value: any;
+  }) => WhereOptions<T>;
+};
+
+type QueryBuilder<T> = {
+  sort: (fields: keyof T) => QueryBuilder<T>;
+  filter: (fields: Filter<T>) => QueryBuilder<T>;
+  paginate: (options?: {
+    limit?: { min?: number; max?: number };
+    offset?: { min?: number };
+  }) => Omit<QueryBuilder<T>, 'paginate'>;
+  build: () => z.ZodObject<{
+    query: z.ZodObject<{
+      sort: z.ZodEffects<
+        z.ZodEffects<z.ZodString, string[][], string>,
+        string[][],
+        string
+      >;
+      filter: z.ZodEffects<
+        z.ZodEffects<
+          z.ZodEffects<
+            z.ZodString,
+            {
+              name: any;
+              operator: any;
+              value: any;
+            }[],
+            string
+          >,
+          {
+            name: any;
+            operator: any;
+            value: any;
+          }[],
+          string
+        >,
+        {},
+        string
+      >;
+      limit: z.ZodEffects<
+        z.ZodEffects<z.ZodString, number, string>,
+        number,
+        string
+      >;
+      offset: z.ZodEffects<
+        z.ZodEffects<z.ZodString, number, string>,
+        number,
+        string
+      >;
+    }>;
+  }>;
+};
+
+type Builder = {
+  query: <T>() => QueryBuilder<T>;
+  params: () => z.ZodObject<{ params: z.ZodObject<{ id: z.ZodString }> }>;
+};
+
+const schemaBuilder: Builder = {
+  query: <T>() => {
+    const sorting: (keyof T)[] = [];
+    const filtering: Filter<T>[] = [];
+
     const pagination = {
       limit: {
         min: 1,
@@ -30,7 +91,8 @@ const schemaBuilder = {
         .refine((value) =>
           value.every(
             ([name, order]) =>
-              sorting.includes(name) && ['ASC', 'DESC'].includes(order),
+              sorting.includes(name as keyof T) &&
+              ['ASC', 'DESC'].includes(order),
           ),
         );
 
@@ -86,42 +148,25 @@ const schemaBuilder = {
         .transform((value) => parseInt(value, 10))
         .refine((value) => value >= pagination.offset.min);
 
-    const builder = {
-      /**
-       * @param {string[]} fields
-       * @returns {Omit<typeof builder, 'sort'>}
-       */
-      sort(fields) {
-        sorting.push(...fields);
+    const builder: QueryBuilder<T> = {
+      sort(field) {
+        sorting.push(field);
         return this;
       },
-      /**
-       *
-       * @param {{
-       *   name: string;
-       *   operators: (keyof import('sequelize').Op)[];
-       *   builder: (params: { operator: keyof import('sequelize').Op; value: string }) => import('sequelize').WhereOptions;
-       * }[]} fields
-       * @returns {Omit<typeof builder, 'sort'>}
-       */
-      filter(fields) {
-        filtering.push(...fields);
+      filter(filter) {
+        filtering.push(filter);
         return this;
       },
-      /**
-       * @param {{ limit: { min?: number; max?: number }; offset: { min?: number } }} param
-       * @returns {Omit<typeof builder, 'paginate'>}
-       */
-      paginate({ limit, offset } = { limit: {}, offset: {} }) {
+      paginate({ limit, offset } = {}) {
+        limit = limit || {};
+        offset = offset || {};
+
         if (limit.min) pagination.limit.min = limit.min;
         if (limit.max) pagination.limit.max = limit.max;
         if (offset.min) pagination.offset.min = offset.min;
 
         return this;
       },
-      /**
-       * @returns {z.ZodObject}
-       */
       build: () =>
         z.object({
           query: z.object({
@@ -135,15 +180,12 @@ const schemaBuilder = {
 
     return builder;
   },
-  /**
-   * Método para construção de esquemas de validação para rotas de detalhamento.
-   * @returns {z.ZodObject} Esquema de validação.
-   */
-  params: () => z.object({
-    params: z.object({
-      id: z.string().uuid(),
+  params: () =>
+    z.object({
+      params: z.object({
+        id: z.string().uuid(),
+      }),
     }),
-  }),
 };
 
-module.exports = schemaBuilder;
+export default schemaBuilder;
