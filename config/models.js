@@ -5,6 +5,9 @@ const modelRootPath = path.resolve(__dirname, '../src/resources');
 
 const dirs = fs.readdirSync(modelRootPath);
 
+/**
+ * @type {import('sequelize').ModelStatic<import('sequelize').Model>[]}
+ */
 const models = [];
 for (const dir of dirs) {
   const modelPath = path.resolve(modelRootPath, dir);

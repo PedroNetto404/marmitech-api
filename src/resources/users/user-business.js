@@ -49,7 +49,7 @@ module.exports.remove = async (id) => {
     throw ApiError.notFound('User not found');
   }
 
-  await userRepository.remove(id);
+  await userRepository.delete(id);
 };
 
 module.exports.authenticate = async ({ identifier, password }) => {
